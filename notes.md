@@ -218,25 +218,25 @@
 - Also to activate venv: source venv/bin/activate.
 
 ### Path Operation
-![Alt text](image.png)
+![Alt text](images/image.png)
 - FastAPi uses the first PO that it comes accross so if two PO use the same path it will use the first one.
 
 ### Postman
 - Easy to test APIs
 
 ### POST Requests
-![Alt text](image-1.png)
+![Alt text](images/image-1.png)
 - Use to create things like a social media posts.
 
 ### Pydantic - Why dbs are better than body of HTTP
-![Alt text](image-2.png)
+![Alt text](images/image-2.png)
 
 ### CRUD
-![Alt text](image-3.png)
+![Alt text](images/image-3.png)
 
 ### Databases
-![Alt text](image-4.png)
-![Alt text](image-5.png)
+![Alt text](images/image-4.png)
+![Alt text](images/image-5.png)
 
 
 ### Postgres
@@ -259,3 +259,20 @@
 - insert into products (price, name, inventory) VALUES (10000, 'car', 100), (50, 'laptop', 25), (60, 'monitor', 4) returning * - return after insert
 - delete from products where id = 12 returning *;
 - update products SET name ='flour tortilla, price = 4-WHERE id = 25 returning star
+
+### ORMs
+![Alt text](images/image_orm.png)
+
+![Alt text](images/image-6.png)
+
+![Alt text](images/image_orm2.png)
+
+![Alt text](images/orm3.png)
+
+- One limitation of SQLAlchemy is that is cannot be used to change the schema of dbs, we instead have to use Alembic to do so.
+
+
+### Pydantic Model vs ORM Model
+![Alt text](images/huhuh.png)
+
+![Alt text](images/hwhwhhw.png)
