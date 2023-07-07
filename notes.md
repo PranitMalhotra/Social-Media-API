@@ -276,3 +276,18 @@
 ![Alt text](images/huhuh.png)
 
 ![Alt text](images/hwhwhhw.png)
+
+### Routers
+- Routers are used to divide traffic and in this case we are using them to split the traffic btw users and posts.
+
+### JWT Token Authentication
+![Alt text](images/jwt.png)
+
+![Alt text](images/jwt2.png)
+
+- The token itself is not encrypted
+- The token's signature is used to provide the data integrity of the token
+
+![Alt text](images/jwt3.png)
+
+![Alt text](images/jwt4.png)
