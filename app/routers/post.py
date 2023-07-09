@@ -1,5 +1,6 @@
+from sqlalchemy import func
 from .. import models, schemas, oauth2
-from typing import List
+from typing import List, Optional
 from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -10,12 +11,17 @@ router = APIRouter(
 )
 
 # Get all posts
-@router.get("/", response_model= List[schemas.Post])
-def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+# @router.get("/", response_model= List[schemas.Post])
+@router.get("/", response_model=List[schemas.PostOut])
+# Setting the default value of the limit to be 10
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
     # cursor.execute("""SELECT * FROM posts""")
     # posts = cursor.fetchall()
-    posts = db.query(models.Post).all()
-    return posts
+    # posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+
+    results = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+
+    return results
 
 # @app.post("/createposts")
 # #Allows me to define a var called payload. The body parameter takes the body text of the HTTP message and convert it as a dict.
@@ -40,9 +46,9 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db), curren
     # new_post = cursor.fetchone()
     # conn.commit()
 
-    print(current_user)
-    # Does the same thing as content = post.content, title = post.title
-    new_post = models.Post(**post.dict())
+    # models.Post(**post.dict()) = Does the same thing as content = post.content, title = post.title
+    # This helps us to enter the user id of the person creating the post and 
+    new_post = models.Post(owner_id=current_user.id, **post.dict())
     db.add(new_post)
     db.commit()
     #retrieves the new post created and returns it back
@@ -51,13 +57,15 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db), curren
 
 
 # Get an individual post
-@router.get("/{id}", response_model= schemas.Post)
+@router.get("/{id}", response_model=schemas.PostOut)
 # FastAPi allows us to validate if the id entered is integer or not using ': int'
-def get_post(id: int, response: Response, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""SELECT * FROM posts WHERE id = %s """, (str(id),))
     # post = cursor.fetchone()
 
-    post = db.query(models.Post).filter(models.Post.id == id).first()
+    # post = db.query(models.Post).filter(models.Post.id == id).first()
+
+    post = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.id == id).first()
 
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -74,14 +82,19 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
     # deleted_post = cursor.fetchone()
     # conn.commit()
 
-    post = db.query(models.Post).filter(models.Post.id == id)
+    post_query = db.query(models.Post).filter(models.Post.id == id)
+
+    post = post_query.first()
 
     # Use to catch errors if no value is returned from find_index_post
-    if post.first() == None:
+    if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'post with id: {id} does not exist')
-    
-    post.delete(synchronize_session=False)
+
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to perform requested action")
+     
+    post_query.delete(synchronize_session=False)
     db.commit()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -102,5 +115,8 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} does not exist")
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
+
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to perform requested action")
 
     return post_query.first()

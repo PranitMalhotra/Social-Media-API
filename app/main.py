@@ -1,39 +1,12 @@
-from typing_extensions import deprecated
-from multiprocessing import synchronize
-from random import randrange
-from re import I
-from typing import Optional, List
-from fastapi import FastAPI, Response, status, HTTPException, Depends
-from fastapi.params import Body
-from pydantic import BaseModel
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time
-from sqlalchemy.orm import Session
-from . import models, schemas, utils
-from .database import engine, get_db
-from .routers import user, post, auth
+from fastapi import FastAPI
+from . import models
+from .database import engine
+from .routers import user, post, auth, vote
+from .config import settings
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-# try helps to connect with the database incase the connection falls off
-# cursor_factory is used to get the name od the colms bcuz by default colm number in returned.
-while True:
-    try:
-        conn = psycopg2.connect(host='127.0.0.1', database='social_media_api',
-                                user='postgres', password='Pranit1234', cursor_factory=RealDictCursor)
-        # cursor is the one that actually executes the code
-        cursor = conn.cursor()
-        print("Database connection was successful")
-        break
-
-    # we are storing the error in the error var
-    except Exception as error:
-        print("Connection to database failed")
-        print("Error: ", error)
-        time.sleep(2)
 
 # # Create a array to store are posts which are in a dictionary format
 # my_posts = [{"title": "title of post 1", "content": "contents of post 1", "id": 1}, {
@@ -60,3 +33,4 @@ while True:
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(vote.router)

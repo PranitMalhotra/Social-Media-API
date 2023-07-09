@@ -291,3 +291,30 @@
 ![Alt text](images/jwt3.png)
 
 ![Alt text](images/jwt4.png)
+
+### Relationship
+![Alt text](images/rel.png)
+
+- Foreign key can only have a value that is already present in the primary key column
+
+### Query Paraeters
+- Use to control the no of posts that the user is getting at a time.
+
+### Environment Variable
+- This means thata variable that is confidential is stored on our local machines.
+- It will always be generated in string.
+- We can do its validation using Pydantic library.
+
+### Voting System
+![Alt text](images/vote.png)
+
+![Alt text](images/vote2.png)
+
+![Alt text](images/vote3.png)
+
+### Joins
+- Left Join: Shows rows that exist in the left but do not exist in the right and vice versa for right join
+- By default in sqlalchemy, join is left inner join
+
+### Database Migrations
+![Alt text](images/alm.png)
