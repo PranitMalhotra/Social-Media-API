@@ -318,3 +318,6 @@
 
 ### Database Migrations
 ![Alt text](images/alm.png)
+
+### CORS
+![Alt text](images/cors.png)

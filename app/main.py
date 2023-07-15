@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from . import models
 from .database import engine
 from .routers import user, post, auth, vote
@@ -7,6 +9,16 @@ from .config import settings
 # models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # # Create a array to store are posts which are in a dictionary format
 # my_posts = [{"title": "title of post 1", "content": "contents of post 1", "id": 1}, {
